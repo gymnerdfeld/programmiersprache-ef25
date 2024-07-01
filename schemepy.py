@@ -34,16 +34,6 @@ def minus(a, b):
 def mult(a, b):
     return a * b
 
-def e():
-    return 
-
-def sto(name, value):
-    builtins[name] = value
-
-    print("Builtins:")
-    for name, value in builtins.items():
-        print(f"  {name} = {value}")
-
 import random
 
 builtins = {
@@ -52,14 +42,11 @@ builtins = {
     "*": mult,
     "e": 2.718281828459045,
     "random": random.random,
-    # "=": sto,
 }
 
 library = """
 (sto quadrieren (func (x) (* x x)))
-(sto pi 3.14159)
-(sto make_adder (func (x) (func (y) (+ x y))))
-
+(sto pi 3.141592653589793)
 """
 
 stack = [builtins, {}]   # Stack wächst in diese Richtung ->
@@ -68,28 +55,6 @@ stack = [builtins, {}]   # Stack wächst in diese Richtung ->
 #                Globale Variablen
     
 
-def find_free_vars(body, params=[]):
-    match body:
-        case int(number) | float(number):
-            return []
-        case str(name):
-            if name in params or name in stack[0] or name in stack[1]:
-                return []
-            else:
-                return [name]
-        case ["func", ps, body]:
-            return find_free_vars(body, params + ps)
-        case ["sto", name, expr]:
-            vars = find_free_vars(expr, params)
-            params.append(name)
-            return vars
-        case ["if", a, b, c]:
-            return find_free_vars([a, b, c], params)
-        case [*exprs]:
-            free_vars = []
-            for expr in exprs:
-                free_vars.extend(find_free_vars(expr, params))
-            return free_vars
 
 def evaluate(expr):
     match expr:
@@ -105,11 +70,6 @@ def evaluate(expr):
                     return scope[name]
             raise NameError(f"name '{name}' is not defined")
         
-            # for i in range(len(stack) - 1, -1, -1):
-            #     scope = stack[i]
-            #     if name in scope:
-            #         return scope[name]
-            #return builtins[name]
         
         #####################
         # Spezialkonstrukte #
@@ -121,10 +81,6 @@ def evaluate(expr):
         case ["func", params, body]: # Funktionsdefinition
             return ["func", params, body]
         
-            # stack_copy = [scope.copy() for scope in stack]
-            # return ["func", params, body, stack_copy]
-            free_vars = {var: evaluate(var) for var in find_free_vars(expr)}
-            return ["func", params, body, free_vars]
 
         #######################
         # Funktionen anwenden #
@@ -140,12 +96,9 @@ def evaluate(expr):
             # Unterscheide Funktion in Python oder Schemepy
             
             match func:
-                case ["func", params, body, free_vars]:    # Schemepy Funktion
+                case ["func", params, body]:    # Schemepy Funktion
                     # FIXME
                     # 1. Neuer Scope erstellen
-                    # stack_backup = stack.copy()
-                    # stack.clear()
-                    # stack.extend(stack_copy)
 
                     # stack.append(free_vars)
                     local_scope = {}
@@ -158,9 +111,6 @@ def evaluate(expr):
                     result = evaluate(body)
                     # 4. Scope wieder löschen
                     stack.pop()
-                    # stack.pop()
-                    # stack.clear()
-                    # stack.extend(stack_backup)
                     return result
                 case _:                         # In Python geschriebene Funktion
                     return func(*evaluated_args)
