@@ -1,0 +1,217 @@
+#  ____       _                                     
+# / ___|  ___| |__   ___ _ __ ___   ___ _ __  _   _ 
+# \___ \ / __| '_ \ / _ \ '_ ` _ \ / _ \ '_ \| | | |
+#  ___) | (__| | | |  __/ | | | | |  __/ |_) | |_| |
+# |____/ \___|_| |_|\___|_| |_| |_|\___| .__/ \__, |
+#                                      |_|    |___/ 
+
+def tokenize(source_code):
+    return source_code.replace("(", " ( ").replace(")", " ) ").split()
+
+def parse(tokens):
+    token = tokens.pop(0)
+    if token == '(':
+        lst = []
+        while tokens[0] != ')':
+            lst.append(parse(tokens))
+        tokens.pop(0)
+        return lst
+    else:
+        if token[0] in "0123456789-" and token != "-":
+            if "." in token:
+                return float(token)
+            else:
+                return int(token)
+        else:
+            return token
+
+def plus(a, b):
+    return a + b
+
+def minus(a, b):
+    return a - b
+
+def mult(a, b):
+    return a * b
+
+def e():
+    return 
+
+def sto(name, value):
+    builtins[name] = value
+
+    print("Builtins:")
+    for name, value in builtins.items():
+        print(f"  {name} = {value}")
+
+import random
+
+builtins = {
+    "+": plus,
+    "-": minus, 
+    "*": mult,
+    "e": 2.718281828459045,
+    "random": random.random,
+    # "=": sto,
+}
+
+library = """
+(sto quadrieren (func (x) (* x x)))
+(sto pi 3.14159)
+(sto make_adder (func (x) (func (y) (+ x y))))
+
+"""
+
+stack = [builtins, {}]   # Stack wächst in diese Richtung ->
+#                  ^
+#                  |
+#                Globale Variablen
+    
+
+def find_free_vars(body, params=[]):
+    match body:
+        case int(number) | float(number):
+            return []
+        case str(name):
+            if name in params or name in stack[0] or name in stack[1]:
+                return []
+            else:
+                return [name]
+        case ["func", ps, body]:
+            return find_free_vars(body, params + ps)
+        case ["sto", name, expr]:
+            vars = find_free_vars(expr, params)
+            params.append(name)
+            return vars
+        case ["if", a, b, c]:
+            return find_free_vars([a, b, c], params)
+        case [*exprs]:
+            free_vars = []
+            for expr in exprs:
+                free_vars.extend(find_free_vars(expr, params))
+            return free_vars
+
+def evaluate(expr):
+    match expr:
+        ##################
+        # Einfache Werte #
+        ##################
+        case int(x) | float(x):     # Zahl
+            return x
+        
+        case str(name):             # Name
+            for scope in reversed(stack):
+                if name in scope:
+                    return scope[name]
+            raise NameError(f"name '{name}' is not defined")
+        
+            # for i in range(len(stack) - 1, -1, -1):
+            #     scope = stack[i]
+            #     if name in scope:
+            #         return scope[name]
+            #return builtins[name]
+        
+        #####################
+        # Spezialkonstrukte #
+        ######################
+        case ["sto", name, value]:    # Einen Wert unter einem Namen abspeichern
+            scope = stack[-1]
+            scope[name] = evaluate(value)
+
+        case ["func", params, body]: # Funktionsdefinition
+            return ["func", params, body]
+        
+            # stack_copy = [scope.copy() for scope in stack]
+            # return ["func", params, body, stack_copy]
+            free_vars = {var: evaluate(var) for var in find_free_vars(expr)}
+            return ["func", params, body, free_vars]
+
+        #######################
+        # Funktionen anwenden #
+        #######################
+        case [operator, *args]:
+            evaluated_args = []
+            func = evaluate(operator)
+
+            for arg in args:
+                evaluated_arg = evaluate(arg)
+                evaluated_args.append(evaluated_arg)
+
+            # Unterscheide Funktion in Python oder Schemepy
+            
+            match func:
+                case ["func", params, body, free_vars]:    # Schemepy Funktion
+                    # FIXME
+                    # 1. Neuer Scope erstellen
+                    # stack_backup = stack.copy()
+                    # stack.clear()
+                    # stack.extend(stack_copy)
+
+                    # stack.append(free_vars)
+                    local_scope = {}
+                    stack.append(local_scope)
+
+                    # 2. Parameter abspeichern (in neuem Scope)
+                    for name, value in zip(params, evaluated_args):
+                        local_scope[name] = value
+                    # 3. Funktion ausführen
+                    result = evaluate(body)
+                    # 4. Scope wieder löschen
+                    stack.pop()
+                    # stack.pop()
+                    # stack.clear()
+                    # stack.extend(stack_backup)
+                    return result
+                case _:                         # In Python geschriebene Funktion
+                    return func(*evaluated_args)
+        case _:
+            return "Invalid expression"
+
+
+
+###########
+# Helpers #
+###########
+def run(source_code):
+    tokens = tokenize(source_code)
+    # print(f"Tokens: {tokens}")
+    syntax_tree = parse(tokens)
+    # print(f"Syntax Tree: {syntax_tree}")
+    result = evaluate(syntax_tree)
+    # print(f"Result: {result}")
+    return result
+
+def tests():
+    # 1 + 1
+    assert run("(+ 1 1)") == 2
+    # 3 - 2
+    assert run("(- 3 2)") == 1
+    # 1
+    assert run("1") == 1
+    # 1.5
+    assert run("1.5") == 1.5
+    # 2 * 3 + 1
+    assert run("(+ (* 2 3) 1)") == 7
+
+def repl():
+    print("Welcome to Schemepy. Enter 'q' to exit.")
+
+    for line in library.splitlines():
+        if line.strip() != "":
+            run(line)
+
+    done = False
+    while not done:
+        expr = input("> ")
+        if expr.strip().lower() == "q":
+            done = True
+        else:
+            try:
+                result = run(expr)
+                print(result)
+            except Exception as e:
+                print(f"{e.__class__.__name__}: {str(e)}")        
+
+if __name__ == "__main__":
+    tests()
+    repl()
