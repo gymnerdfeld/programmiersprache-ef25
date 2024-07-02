@@ -34,6 +34,10 @@ def minus(a, b):
 def mult(a, b):
     return a * b
 
+
+def begin(*args):
+    return args[-1]
+
 import random
 
 builtins = {
@@ -42,11 +46,16 @@ builtins = {
     "*": mult,
     "e": 2.718281828459045,
     "random": random.random,
+    "begin": begin,
 }
 
 library = """
-(sto quadrieren (func (x) (* x x)))
-(sto pi 3.141592653589793)
+(begin
+    (sto quadrieren (func (x)
+        (* x x)
+    ))
+    (sto pi 3.141592653589793)
+)
 """
 
 stack = [builtins, {}]   # Stack wächst in diese Richtung ->
@@ -63,24 +72,23 @@ def evaluate(expr):
         ##################
         case int(x) | float(x):     # Zahl
             return x
-        
+
         case str(name):             # Name
             for scope in reversed(stack):
                 if name in scope:
                     return scope[name]
             raise NameError(f"name '{name}' is not defined")
-        
-        
+
         #####################
         # Spezialkonstrukte #
-        ######################
+        #####################
         case ["sto", name, value]:    # Einen Wert unter einem Namen abspeichern
             scope = stack[-1]
             scope[name] = evaluate(value)
 
         case ["func", params, body]: # Funktionsdefinition
             return ["func", params, body]
-        
+
 
         #######################
         # Funktionen anwenden #
@@ -94,7 +102,7 @@ def evaluate(expr):
                 evaluated_args.append(evaluated_arg)
 
             # Unterscheide Funktion in Python oder Schemepy
-            
+
             match func:
                 case ["func", params, body]:    # Schemepy Funktion
                     # FIXME
@@ -145,9 +153,7 @@ def tests():
 def repl():
     print("Welcome to Schemepy. Enter 'q' to exit.")
 
-    for line in library.splitlines():
-        if line.strip() != "":
-            run(line)
+    run(library)
 
     done = False
     while not done:
@@ -159,7 +165,7 @@ def repl():
                 result = run(expr)
                 print(result)
             except Exception as e:
-                print(f"{e.__class__.__name__}: {str(e)}")        
+                print(f"{e.__class__.__name__}: {str(e)}")
 
 if __name__ == "__main__":
     tests()
