@@ -100,7 +100,6 @@ def evaluate(expr):
                     # FIXME
                     # 1. Neuer Scope erstellen
 
-                    # stack.append(free_vars)
                     local_scope = {}
                     stack.append(local_scope)
 
