@@ -128,8 +128,7 @@ def evaluate(expr):
                 case _:                         # In Python geschriebene Funktion
                     return func(*evaluated_args)
         case _:
-            return "Invalid expression"
-
+            raise ValueError("Invalid expression")
 
 
 ###########
