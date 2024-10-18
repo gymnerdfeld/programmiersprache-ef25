@@ -86,7 +86,13 @@ def evaluate(expr):
             scope = stack[-1]
             scope[name] = evaluate(value)
 
-        case ["func", params, body]: # Funktionsdefinition
+        case ["if", condition, body_true, body_false]:
+            if evaluate(condition):
+                return evaluate(body_true)
+            else:
+                return evaluate(body_false)
+
+        case ["func", params, body]:  # Funktionsdefinition
             return ["func", params, body]
 
 
