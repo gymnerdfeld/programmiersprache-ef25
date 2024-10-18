@@ -83,7 +83,7 @@ Bei unseren "eigenen" Funktionen sind zwei Schritte nötig:
 
 _Bemerkung:_ Bei den beiden Begriffe Parameter und Argumente einer Funktion droht Verwechslungsgefahr. Als Parameter bezeichnet man die Liste von Namen bei der _Definition_ einer Funktion. Die konkreten Werte, welche dann beim _Aufruf_ einer Funktion übergeben werden, nennt man hingegen Argumente. Sie zu verwechseln ist aber oft nicht weiter schlimm, denn meistens ist trotzdem klar, was gemeint ist. In der Python-Welt werden diese beiden Begriffe aber ziemlich konsistent wie beschrieben verwendet.
 
-## 3.2 Funktionen mit Environments
+## 3.2 Funktionen mit lokalen Variablen
 
 <!-- Leakt Variablen
 
