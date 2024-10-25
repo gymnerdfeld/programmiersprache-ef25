@@ -12,9 +12,10 @@ In diesem Tutorial entwickeln wir Schritt für Schritt unsere eigene Programmier
   - [1.1 Syntax](1-basics.md#11-syntax)
   - [1.2 Interne Darstellung eines Programms](1-basics.md#12-interne-darstellung-eines-programms)
   - [1.3 Phasen der Ausführung](1-basics.md#13-phasen-der-ausführung)
-  _ [1.3.1 Tokenize-Phase](1-basics.md#131-tokenize-phase)
-  _ [1.3.2 Parse-Phase](1-basics.md#132-parse-phase) \* [1.3.3 Evaluate-Phase](1-basics.md#133-evaluate-phase)
-  <!-- * Erweiterte Phasen (optional) -->
+    - [1.3.1 Tokenize-Phase](1-basics.md#131-tokenize-phase)
+    - [1.3.2 Parse-Phase](1-basics.md#132-parse-phase)
+    - [1.3.3 Evaluate-Phase](1-basics.md#133-evaluate-phase)
+    <!-- * Erweiterte Phasen (optional) -->
 - [2 Taschenrechner](2-calculator.md)
   - [2.1 Einfache Rechnungen auswerten](2-calculator.md#21-einfache-rechnungen-auswerten)
   - [2.2 Konstanten](2-calculator.md#22-konstanten)
@@ -39,14 +40,16 @@ In diesem Tutorial entwickeln wir Schritt für Schritt unsere eigene Programmier
 - **Evaluate**: Dritte Phase bei der Ausführung eines Programms. Die interne Darstellung Schritt für Schritt ausführen, um am Schluss zu einem Resultat zu gelangen.
 - **Schlüsselwort**: Wort, welches in einer Programmiersprache eine spezielle Bedeutung hat, und darum zum Beispiel nicht als Variablen- oder Funktionsnamen verwendet werden darf. In unserer Sprache beispielsweise `sto`, oder `def` in Python.
 - **Eingebaute Funktion**: Eine Funktion, welche in unserer Programmiersprache benutzt werden kann, aber in der Host-Programmiersprache programmiert wurde. Zum Beispiel `add` für die Addition zweier Zahlen.
-- **Library-Funktion**: Eine Funktion, welche in unserer Programmiersprache benutzt werden kann und auch in unserer Programmiersprache programmiert wurde. Die Library-Funktionen werden vor der Ausführung eines Programms geladen.
-- **Lokale Variablen**: Variablen, welche nur innerhalb einer Funktion existieren. Also alle Argumente der Funktion und auch alle Variablen, welche innerhalb der Funktion definiert wurden.
-- **Environment**: Ort um Werte wie Variablen und Funktionen abzuspeichern. Das Environment ändert sich, und ist beispielsweise innerhalb einer Funktion anders als ausserhalb. Für Environments verwenden wir Pythons `ChainMap`-Datenstruktur.
-- **Rekursion**: Funktionen die sich selber aufrufen. Zum Beispiel eine Funktion welche die Fakultät einer Zahl berechnet.
+- **Library-Funktion**: Eine Funktion, welche in unserer Programmiersprache benutzt werden kann, und auch in unserer Programmiersprache programmiert wurde. Die Library-Funktionen werden vor der Ausführung eines Programms geladen.
+- **Lokale Variablen**: Variablen, welche nur innerhalb einer Funktion existieren. Also alle Argumente der Funktion und auch alle Variablen, welche innerhalb der Funktion definiert wurden. Sie werden im lokalen Scope abgespeichert.
+- **Scope**: Ort um Werte wie Variablen und Funktionen abzuspeichern. Mit jedem Funktionsaufruf wird ein neuer Scope erstellt. Der Scope ist darum innerhalb und ausserhalb einer Funktion verschieden.
+- **Stack**: Ein Stapel (mit einer Liste programmiert), in welchem die Scopes der Funktionsaufrufe abgespeichert werden. Der aktuelle Scope landet immer zuoberst auf dem Stapel (am Schluss der Liste). Der Stack ermöglicht verschachtelte Funktionsaufrufe, also Funktionen, welche andere Funktionen aufrufen.
+- **Rekursion**: Eine Art des Programmierens, bei der Funktionen sich selber aufrufen. Zum Beispiel eine Funktion welche die Fakultät einer Zahl berechnet.
 
 ## Referenzen
 
-`lis.py` und `lispy.py` von Norvig
+`lis.py` und `lispy.py` von Peter Norvig.
+
 Luciano Ramalho
 
 ## Lizenz
