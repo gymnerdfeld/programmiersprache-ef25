@@ -139,9 +139,7 @@ def evaluate(expr):
 
             match func:
                 case ["func", params, body]:  # Schemepy Funktion
-                    # FIXME
                     # 1. Neuer Scope erstellen
-
                     local_scope = {}
                     stack.append(local_scope)
 
@@ -152,6 +150,8 @@ def evaluate(expr):
                     result = evaluate(body)
                     # 4. Scope wieder löschen
                     stack.pop()
+
+                    # 5. Resultat zurück geben
                     return result
                 case _:  # In Python geschriebene Funktion
                     return func(*evaluated_args)
