@@ -55,6 +55,10 @@ builtins = {
     "random": random.random,
     "begin": begin,
     "<": lambda a, b: a < b,
+    "dict-new": dict_new,
+    "dict-set": dict_set,
+    "dict-get": dict_get,
+    "dict-in?": dict_in,
 }
 
 library = """
