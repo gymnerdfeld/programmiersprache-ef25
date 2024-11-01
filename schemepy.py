@@ -54,6 +54,7 @@ builtins = {
     "e": 2.718281828459045,
     "random": random.random,
     "begin": begin,
+    "<": lambda a, b: a < b,
 }
 
 library = """
