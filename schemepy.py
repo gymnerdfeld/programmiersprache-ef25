@@ -75,6 +75,17 @@ library = """
         inner
     )))
     (sto plus5 (make_adder 5))
+
+    (sto fib (func (n)
+        (if (< n 2)
+            1
+            (+
+                (fib (- n 1))
+                (fib (- n 2))
+            )
+        )
+    ))
+
 )
 """
 
