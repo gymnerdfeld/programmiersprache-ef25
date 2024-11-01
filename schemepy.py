@@ -76,8 +76,9 @@ stack = [builtins, {}]  # Stack wächst in diese Richtung ->
 #                Globale Variablen
 
 
-def find_free_vars(body, params=[]):
-    match body:
+
+def find_free_vars(expr, params=[]):
+    match expr:
         case int(number) | float(number):
             return []
         case str(name):
@@ -88,9 +89,8 @@ def find_free_vars(body, params=[]):
         case ["func", ps, body]:
             return find_free_vars(body, params + ps)
         case ["sto", name, expr]:
-            vars = find_free_vars(expr, params)
             params.append(name)
-            return vars
+            return find_free_vars(expr, params)
         case ["if", a, b, c]:
             return find_free_vars([a, b, c], params)
         case [*exprs]:
