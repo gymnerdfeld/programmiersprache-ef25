@@ -128,7 +128,8 @@ def evaluate(expr):
                 return evaluate(body_false)
 
         case ["func", params, body]:  # Funktionsdefinition
-            return ["func", params, body]
+            names = find_free_vars(body, params)
+            return ["func", params, body, names, stack[-1]]
 
         #######################
         # Funktionen anwenden #
@@ -144,22 +145,27 @@ def evaluate(expr):
             # Unterscheide Funktion in Python oder Schemepy
 
             match func:
-                case ["func", params, body]:  # Schemepy Funktion
+                # Schemepy Funktion
+                case ["func", params, body, free_var_names, closure]:
                     # 1. Neuer Scope erstellen
                     local_scope = {}
-                    stack.append(local_scope)
-
-                    # 2. Parameter abspeichern (in neuem Scope)
+                    # 2a. Closure-Variablen abspeichern (in neuem Scope)
+                    for name in free_var_names:
+                        local_scope[name] = closure[name]
+                    # 2b. Parameter abspeichern (in neuem Scope)
                     for name, value in zip(params, evaluated_args):
                         local_scope[name] = value
-                    # 3. Funktion ausführen
+                    # 3. Neuer lokaler Scope auf dem Stack abspeichern
+                    stack.append(local_scope)
+                    # 4. Funktion ausführen
                     result = evaluate(body)
-                    # 4. Scope wieder löschen
+                    # 5. Lokaler Scope der Funktion wieder vom Stack löschen
                     stack.pop()
-
-                    # 5. Resultat zurück geben
+                    # 6. Berechnetes Resultat zurück geben
                     return result
-                case _:  # In Python geschriebene Funktion
+
+                # In Python geschriebene Funktion
+                case _:
                     return func(*evaluated_args)
         case _:
             raise ValueError("Invalid expression")
