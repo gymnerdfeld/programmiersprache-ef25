@@ -86,6 +86,20 @@ library = """
         )
     ))
 
+    (sto cached (func (f) (begin
+        (sto cache (dict-new))
+        (func (x)
+            (if (dict-in? cache x)
+                (dict-get cache x)
+                (begin
+                    (sto result (f x))
+                    (dict-set cache x result)
+                    result
+                )
+            )
+        )
+    )))
+    (sto fib (cached fib))
 )
 """
 
