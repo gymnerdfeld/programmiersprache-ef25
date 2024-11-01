@@ -45,6 +45,22 @@ def begin(*args):
     return args[-1]
 
 
+def dict_new():
+    return {}
+
+
+def dict_in(d, key):
+    return key in d
+
+
+def dict_set(d, key, val):
+    d[key] = val
+
+
+def dict_get(d, key):
+    return d[key]
+
+
 import random
 
 builtins = {
