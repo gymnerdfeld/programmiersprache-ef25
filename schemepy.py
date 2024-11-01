@@ -67,6 +67,14 @@ library = """
         (* x x)
     ))
     (sto pi 3.141592653589793)
+
+    (sto make_adder (func (x) (begin
+        (sto inner (func (y)
+            (+ x y)
+        ))
+        inner
+    )))
+    (sto plus5 (make_adder 5))
 )
 """
 
