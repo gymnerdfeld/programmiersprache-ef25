@@ -1,4 +1,6 @@
-; Math
+; ==== ;
+; Math ;
+; ==== ;
 (sto square (func (x)
     (* x x)
 ))
@@ -12,7 +14,9 @@
 (sto tau (* 2 pi))
 
 
-; Logik und Vergleiche
+; ==================== ;
+; Logik und Vergleiche ;
+; ==================== ;
 (sto not (func (x)
     (if x False True)
 ))
@@ -44,7 +48,9 @@
 ))
 
 
-; Experiment mit Closures
+; ======================= ;
+; Experiment mit Closures ;
+; ======================= ;
 (sto make_adder (func (x) (begin
     (sto inner (func (y)
         (+ x y)
@@ -54,7 +60,9 @@
 (sto plus5 (make_adder 5))
 
 
-; Langsame Fibonacci-Funktion
+; =========================== ;
+; Langsame Fibonacci-Funktion ;
+; =========================== ;
 (sto fib (func (n)
     (if (< n 2)
         1
@@ -65,7 +73,10 @@
     )
 ))
 
-; Resultate einer Funktion zwischenspeichern (cachen)
+
+; =================================================== ;
+; Resultate einer Funktion zwischenspeichern (cachen) ;
+; =================================================== ;
 (sto cached (func (f) (begin
     (sto cache (dict-new))
     (func (x)
@@ -80,10 +91,16 @@
     )
 )))
 
+
+; ================================ ;
 ; Beschleunigte Fibonacci-Funktion
+; ================================ ;
 (sto fib (cached fib))
 
-; Zahlenratespiel
+
+; =============== ;
+; Zahlenratespiel ;
+; =============== ;
 (sto guesser-game (func () (begin
     (sto number (// (* (random) 100) 1))
 
