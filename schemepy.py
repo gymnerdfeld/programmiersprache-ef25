@@ -29,33 +29,49 @@ def parse(tokens):
             return token
 
 
+# ========================================== #
+# Builtins                                   #
+# ========================================== #
+
+# Math
 def plus(a, b):
     return a + b
-
 
 def minus(a, b):
     return a - b
 
-
 def mult(a, b):
     return a * b
 
+def exp(a, b):
+    return a ** b
 
+def div(a, b):
+    return a / b
+
+def int_div(a, b):
+    return a // b
+
+def modulo(a, b):
+    return  a % b
+
+# Vergleichsoperator
+def less_than(a, b):
+    return a < b
+
+# Block mit mehreren Anweisungen; gibt das Resultat des letzten Ausdrucks zurück
 def begin(*args):
     return args[-1]
 
-
+# dicts
 def dict_new():
     return {}
-
 
 def dict_in(d, key):
     return key in d
 
-
 def dict_set(d, key, val):
     d[key] = val
-
 
 def dict_get(d, key):
     return d[key]
@@ -67,65 +83,45 @@ builtins = {
     "+": plus,
     "-": minus,
     "*": mult,
-    "e": 2.718281828459045,
-    "random": random.random,
+    "**": exp,
+    "/": div,
+    "//": int_div,
+    "%": modulo,
+    "<": less_than,
     "begin": begin,
-    "<": lambda a, b: a < b,
     "dict-new": dict_new,
     "dict-set": dict_set,
     "dict-get": dict_get,
     "dict-in?": dict_in,
+
+    # Direkt "importierte" Funktionen und Werte
+    "print": print,
+    "random": random.random,
+    "True": True,
+    "False": False,
 }
 
-library = """
-(begin
-    (sto quadrieren (func (x)
-        (* x x)
-    ))
-    (sto pi 3.141592653589793)
 
-    (sto make_adder (func (x) (begin
-        (sto inner (func (y)
-            (+ x y)
-        ))
-        inner
-    )))
-    (sto plus5 (make_adder 5))
+# ========================================== #
+# Library (aus File library.lisp importiert) #
+# ========================================== #
+from pathlib import Path
+library_file = Path(__file__).parent / "library.lisp"
+library = "(begin " + library_file.open().read() + ")"
 
-    (sto fib (func (n)
-        (if (< n 2)
-            1
-            (+
-                (fib (- n 1))
-                (fib (- n 2))
-            )
-        )
-    ))
 
-    (sto cached (func (f) (begin
-        (sto cache (dict-new))
-        (func (x)
-            (if (dict-in? cache x)
-                (dict-get cache x)
-                (begin
-                    (sto result (f x))
-                    (dict-set cache x result)
-                    result
-                )
-            )
-        )
-    )))
-    (sto fib (cached fib))
-)
-"""
-
+# ============================================ #
+# Stack mit den globalen und lokalen Variablen #
+# ============================================ #
 stack = [builtins, {}]  # Stack wächst in diese Richtung ->
 #                  ^
 #                  |
 #                Globale Variablen
 
 
-
+# ============================================ #
+# Freie Variablen in Closure finden            #
+# ============================================ #
 def find_free_vars(expr, params=[]):
     match expr:
         case int(number) | float(number):
@@ -142,6 +138,8 @@ def find_free_vars(expr, params=[]):
             return find_free_vars(expr, params)
         case ["if", a, b, c]:
             return find_free_vars([a, b, c], params)
+        case ["string", *_]:
+            return []
         case [*exprs]:
             free_vars = []
             for expr in exprs:
@@ -149,6 +147,9 @@ def find_free_vars(expr, params=[]):
             return free_vars
 
 
+# ============================================ #
+# Ausdruck evaluieren / ausführen              #
+# ============================================ #
 def evaluate(expr):
     match expr:
         ##################
@@ -166,19 +167,27 @@ def evaluate(expr):
         #####################
         # Spezialkonstrukte #
         #####################
-        case ["sto", name, value]:  # Einen Wert unter einem Namen abspeichern
+
+        # Einen Wert unter einem Namen abspeichern
+        case ["sto", name, value]:
             scope = stack[-1]
             scope[name] = evaluate(value)
 
+        # Bedingte Ausführung (if)
         case ["if", condition, body_true, body_false]:
             if evaluate(condition):
                 return evaluate(body_true)
             else:
                 return evaluate(body_false)
 
+        # Funktionsdefinition
         case ["func", params, body]:  # Funktionsdefinition
             names = find_free_vars(body, params)
             return ["func", params, body, names, stack[-1]]
+
+        # String (Mehrere Wörter werden mit Leerzeichen zusammen gesetzt)
+        case ["string", *words]:
+            return " ".join(words)
 
         #######################
         # Funktionen anwenden #
@@ -192,8 +201,8 @@ def evaluate(expr):
                 evaluated_args.append(evaluated_arg)
 
             # Unterscheide Funktion in Python oder Schemepy
-
             match func:
+
                 # Schemepy Funktion
                 case ["func", params, body, free_var_names, closure]:
                     # 1. Neuer Scope erstellen
@@ -220,9 +229,9 @@ def evaluate(expr):
             raise ValueError("Invalid expression")
 
 
-###########
-# Helpers #
-###########
+# ============================================ #
+# Hilfsfunktionen                              #
+# ============================================ #
 def run(source_code):
     tokens = tokenize(source_code)
     # print(f"Tokens: {tokens}")
